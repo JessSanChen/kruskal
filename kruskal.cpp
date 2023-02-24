@@ -14,16 +14,32 @@ float dist1 (float node, float next) {
     return pow(node, 2) + pow(next, 2);
 };
 
-class Graph1D {
+float dist2 (tuple<float,float> node, tuple<float,float> next) {
+    float x1;
+    float y1;
+    float x2;
+    float y2;
+    tie(x1, y1) = node;
+    tie(x2,y2) = next;
+    return pow((x2-x1), 2) + pow((y2-y1), 2);
+};
+
+class Graph {
     public: 
         int n;
         int d;
    
-        Graph1D(int numVertices) { // constructor
+        Graph(int numVertices, int dim) { // constructor
             n = numVertices;
             d = dim;
             vector<vector<tuple<float, int>>> adj(n);
-            generateAdj1D(adj, n);
+            if (d == 1) {
+                generateAdj1D(adj, n);
+            }
+            else if (d == 2) {
+                generateAdj2D(adj, n);
+            }    
+
         } 
         
         void generateAdj1D(vector<vector<tuple<float, int>>> adj, int n) {
@@ -32,6 +48,17 @@ class Graph1D {
                 for(int v = u + 1; v < n; v++) { // iterate through remaining nodes
                     float nextVal = float(rand())/float((RAND_MAX));
                     float weight = dist1(nodeVal, nextVal); // generate weight
+                    adj[u].push_back(tuple(weight, v));
+                    adj[v].push_back(tuple(weight, u));
+                }
+            }
+        }
+        void generateAdj2D(vector<vector<tuple<float, int>>> adj, int n) {
+            for(int u = 0; u < n; u++) { // iterate through nodes
+                tuple<float,float> nodeVal = tuple(float(rand())/float((RAND_MAX)),float(rand())/float((RAND_MAX)));
+                for(int v = u + 1; v < n; v++) { // iterate through remaining nodes
+                    tuple<float,float> nextVal = tuple(float(rand())/float((RAND_MAX)),float(rand())/float((RAND_MAX)));
+                    float weight = dist2(nodeVal, nextVal); // generate weight
                     adj[u].push_back(tuple(weight, v));
                     adj[v].push_back(tuple(weight, u));
                 }
@@ -53,6 +80,6 @@ int main(int argc, char** argv) {
         int numtrials = int(argv[3]);
         int dimension = int(argv[4]);
     }
-    Graph1D graph = Graph1D(numpoints);
+    Graph graph = Graph(numpoints, dimension);
     return 0;
 }
